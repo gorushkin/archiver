@@ -1,0 +1,45 @@
+{
+  "name": "archiver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "bin": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc && node build/index.js asdfsadf.avi",
+    "p": "tsc && node build/index.js pack text.txt -p 123",
+    "o": "tsc && node build/index.js pack ../with-redux-wrapper-app/README.md -p 123",
+    "f": "tsc && node build/index.js pack ../with-redux-wrapper-app -p 123",
+    "u": "tsc && node build/index.js u asdfsadf.avi -o qweqweqwe/qwerqwer",
+    "e": "tsc && node build/index.js",
+    "start": "node build/index.js",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/archiver": "^5.3.1",
+    "@types/minimist": "^1.2.2",
+    "@types/prompt": "^1.1.2",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "eslint": "^8.7.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "tslint": "^6.1.3",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@types/uuid": "^8.3.4",
+    "archiver": "^5.3.0",
+    "archiver-zip-encryptable": "^1.0.10",
+    "commander": "^8.3.0",
+    "minimist": "^1.2.5",
+    "prompt": "^1.2.1",
+    "uuid": "^8.3.2"
+  }
+}
