@@ -2,10 +2,17 @@ import archiver from 'archiver';
 import fs from 'fs';
 import { createReadStream } from 'fs';
 
-export default async (inputpath: string, outputPath: string, name: string): Promise<string> => {
+import archiverZipEncrypted from 'archiver-zip-encrypted';
+
+archiver.registerFormat('zip-encrypted', archiverZipEncrypted);
+
+export default async (inputpath, outputPath, password, name) => {
+  console.log('password: ', password);
   return new Promise((resolve, reject) => {
-    const archive = archiver('zip', {
-      zlib: { level: 9 }, // Sets the compression level.
+    const archive = archiver('zip-encrypted', {
+      zlib: { level: 8 },
+      encryptionMethod: 'aes256',
+      password,
     });
 
     const output = fs.createWriteStream(outputPath);
