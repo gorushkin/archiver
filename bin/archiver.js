@@ -12,7 +12,6 @@ program
   .action((filename) => {
     const { output, password } = program.opts();
     app(output, password, filename);
-    console.log('case1');
   });
 
 program
@@ -22,7 +21,6 @@ program
   .action((filename) => {
     const { output, password } = program.opts();
     app(output, password, filename, 'pack');
-    console.log('case2');
 
   });
 
@@ -31,7 +29,6 @@ program
   .description('unpack file')
   .alias('u')
   .action((filename) => {
-    console.log('case3');
     const { output, password } = program.opts();
     app(output, password, filename, 'unpack');
   });

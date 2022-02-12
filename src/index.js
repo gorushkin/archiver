@@ -9,7 +9,7 @@ const app = async (output, password, filename, type) => {
   if (type !== 'unpack') {
     await archiver.pack(input, output, password, type);
   } else {
-
+    await archiver.unpack(input, output, password, type);
   }
 };
 

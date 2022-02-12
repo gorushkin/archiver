@@ -8,16 +8,23 @@
     "archiver": "bin/archiver.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev": "node bin/archiver.js asdfsadf.avi",
-    "p": "node bin/archiver.js pack text.txt -p 123",
+    "p": "node bin/archiver.js pack temp/text.txt -p 123",
     "o": "node bin/archiver.js pack ../with-redux-wrapper-app/README.md -p 123",
-    "q": "node bin/archiver.js ../with-redux-wrapper-app/README.md -p 123",
+    "q": "node bin/archiver.js unpack ./temp/archive.zip -p 123",
     "f": "node bin/archiver.js pack ../with-redux-wrapper-app -p 123",
     "u": "node bin/archiver.js u asdfsadf.avi -o qweqweqwe/qwerqwer",
     "e": "node bin/archiver.js",
     "start": "node build/archiver.js",
     "build": "tsc"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/__tests__/helpers.js"
+    ],
+    "verbose": true
   },
   "author": "",
   "license": "ISC",
@@ -31,8 +38,10 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.1.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.5.1",
     "prettier": "^2.5.1",
     "tslint": "^6.1.3",
     "typescript": "^4.5.5"
@@ -45,6 +54,7 @@
     "commander": "^8.3.0",
     "minimist": "^1.2.5",
     "prompt": "^1.2.1",
+    "unzipper": "^0.10.11",
     "uuid": "^8.3.2"
   }
 }

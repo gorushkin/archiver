@@ -7,19 +7,22 @@ import archiverZipEncrypted from 'archiver-zip-encrypted';
 archiver.registerFormat('zip-encrypted', archiverZipEncrypted);
 
 export default async (inputpath, outputPath, password, name) => {
-  console.log('password: ', password);
   return new Promise((resolve, reject) => {
-    const archive = archiver('zip-encrypted', {
-      zlib: { level: 8 },
-      encryptionMethod: 'aes256',
-      password,
-    });
+    const archive = password
+      ? archiver('zip-encrypted', {
+          zlib: { level: 8 },
+          encryptionMethod: 'zip20',
+          password,
+        })
+      : archiver('zip', {
+          zlib: { level: 9 },
+        });
 
     const output = fs.createWriteStream(outputPath);
 
     output.on('close', function () {
-      console.log(archive.pointer() + ' total bytes');
-      console.log('archiver has been finalized and the output file descriptor has closed.');
+      // console.log(archive.pointer() + ' total bytes');
+      // console.log('archiver has been finalized and the output file descriptor has closed.');
     });
 
     output.on('end', function () {
