@@ -7,51 +7,55 @@ import unzipper from 'unzipper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const getFilePath = (fileName) => path.join(__dirname, '..', '__fixtures__', fileName);
-
 const tempDirectoryName = 'temp';
 
-const getPathWithTempDir = (name) => {
-  const tempDirectoryPath = path.join(process.cwd(), tempDirectoryName);
+const getPathToFixtures = (fileName) => path.join(__dirname, '..', '__fixtures__', fileName);
+const getFileFromFixtures = (path) => fs.readFileSync(getPathToFixtures(path));
 
-  return name ? path.join(tempDirectoryPath, name) : tempDirectoryPath;
-};
-
-const inputFilename = 'text.txt';
-const inputFilePath = getFilePath(inputFilename);
-
-const archiverResult = ['archive.zip'];
-
-let fileContent;
+const getPathToTempDir = (...fileNames) =>
+  path.join(process.cwd(), tempDirectoryName, ...fileNames);
 
 const testData = [
-  { folderName: 'test1', inputName: 'text.txt', output: 'archive.zip', testFileName: 'text.txt' },
-  // { folderName: 'test1', inputName: 'text.txt', output: 'archive.zip', testFileName: 'text.txt' },
+  {
+    testGroupName: 'Pack single file',
+    folderName: 'test1',
+    inputName: getPathToFixtures('text.txt'),
+    output: 'archive.zip',
+    expectedFile: getFileFromFixtures('text.txt'),
+    result: ['archive.zip'],
+  },
 ];
 
-describe('pack file', () => {
+describe('Packing tests', () => {
   beforeAll(async () => {
-    await resetDir(getPathWithTempDir());
-    await Archiver.pack(inputFilePath, getPathWithTempDir(), {
-      archiveName: 'archive.zip',
-      level: 1,
-    });
-    const file = await fs.promises.readFile(inputFilePath);
-    fileContent = file.toString();
+    await resetDir(getPathToTempDir());
   });
 
-  test('file was packed successfuly', async () => {
-    const dirContent = await getDirContent(getPathWithTempDir());
-    expect(JSON.stringify(dirContent) === JSON.stringify(archiverResult));
-  });
+  describe.each(testData.map((item) => item))(
+    '$testGroupName',
+    ({ testGroupName, folderName, inputName, output, expectedFile, result }) => {
+      let dirContent;
+      beforeAll(async () => {
+        await fs.promises.mkdir(getPathToTempDir(folderName));
+        await Archiver.pack(inputName, getPathToTempDir(folderName), {
+          archiveName: 'archive.zip',
+          level: 1,
+        });
+        dirContent = await getDirContent(getPathToTempDir(folderName));
+      });
 
-  test('archive content is correct', async () => {
-    const [archive] = await getDirContent(getPathWithTempDir());
+      test('file was packed successfuly', async () => {
+        expect(JSON.stringify(dirContent) === JSON.stringify(result));
+      });
 
-    const directory = await unzipper.Open.file(getPathWithTempDir(archive));
-    const file = directory.files[0];
-    const content = await file.buffer();
+      test('archive content is correct', async () => {
+        const [archive] = await getDirContent(getPathToTempDir(folderName));
 
-    expect(content.toString() === fileContent);
-  });
+        const directory = await unzipper.Open.file(getPathToTempDir(folderName, archive));
+        const file = directory.files[0];
+        const content = await file.buffer();
+        expect(content.toString() === expectedFile.toString());
+      });
+    }
+  );
 });
