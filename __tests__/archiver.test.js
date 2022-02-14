@@ -9,7 +9,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const tempDirectoryName = 'temp';
 
-const getPathToFixtures = (fileName) => path.join(__dirname, '..', '__fixtures__', fileName);
+const getPathToFixtures = (...fileName) => path.join(__dirname, '..', '__fixtures__', ...fileName);
+// const getPathToFixtures = (fileName) => path.join(__dirname, '..', '__fixtures__', fileName);
 const getFileFromFixtures = (path) => fs.readFileSync(getPathToFixtures(path));
 
 const getPathToTempDir = (...fileNames) =>
@@ -19,10 +20,11 @@ const testData = [
   {
     testGroupName: 'Pack single file',
     folderName: 'test1',
-    inputName: getPathToFixtures('test1/text.txt'),
-    resultFolder: getPathToTempDir('test1'),
-    // expectedFile: getFileFromFixtures('test1'),
-    result: 'test1/text.txt',
+    target: 'text.txt',
+    // inputName: getPathToFixtures('test1/text.txt'),
+    // resultFolder: getPathToTempDir('test1'),
+    // expectedFile: getPathToFixtures('test1'),
+    // result: 'test1/text.txt',
     expectedArchiveName: 'archive.zip',
   },
   // {
@@ -45,17 +47,21 @@ describe('Packing tests', () => {
     ({
       testGroupName,
       folderName,
-      inputName,
       expectedArchiveName,
-      resultFolder,
-      expectedFile,
-      result,
+      // resultFolder,
+      // expectedFile,
+      // result,
+      target,
     }) => {
       let dirContent;
       let expectedDirContent;
+      let resultFolder;
+
       beforeAll(async () => {
-        await fs.promises.mkdir(getPathToTempDir(folderName));
-        await Archiver.pack(inputName, getPathToTempDir(folderName), {
+        const targetPath = getPathToFixtures(folderName, target);
+        resultFolder = getPathToTempDir(folderName);
+        await fs.promises.mkdir(resultFolder);
+        await Archiver.pack(targetPath, resultFolder, {
           archiveName: 'archive.zip',
           level: 1,
         });
@@ -73,8 +79,20 @@ describe('Packing tests', () => {
       //   const directory = await unzipper.Open.file(getPathToTempDir(folderName, archive));
       //   const file = directory.files[0];
       //   const content = await file.buffer();
-      //   expect(content.toString() === expectedFile.toString());
+      //   console.log('content: ', content);
+      //   // expect(content.toString() === expectedFile.toString());
+      //   expect(2).toEqual(2);
       // });
+
+      test('archive structure is correct', async () => {
+        const [archive] = await getDirContent(resultFolder);
+        const directory = await unzipper.Open.file(getPathToTempDir(folderName, archive));
+        const tempExtractDir = getPathToTempDir(folderName, folderName);
+        await directory.extract({ path: tempExtractDir, concurrency: 5 });
+        const expextedDirStucture = await scanDir(getPathToFixtures(folderName));
+        const resultDirStucture = await scanDir(tempExtractDir);
+        expect(expextedDirStucture).toEqual(resultDirStucture);
+      });
     }
   );
 });
