@@ -34,7 +34,10 @@ export const scanDir = async (target, view = 'simple') => {
     try {
       const stat = await fs.promises.stat(filename);
       const name = view === 'simple' ? path.basename(filename) : filename;
-      if (stat.isFile()) return { ...(view === 'full' && { type: 'file' }), name };
+      if (stat.isFile()) {
+        const content = (await fs.promises.readFile(filename)).toString();
+        return { ...(view === 'full' && { type: 'file' }), name, content };
+      }
       if (stat.isDirectory()) {
         const childrens = await readDir(filename);
         return { ...(view === 'full' && { type: 'directory' }), name, childrens };
