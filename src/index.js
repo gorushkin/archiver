@@ -4,12 +4,11 @@ const dirname = path.resolve();
 
 const app = async (output, password, filename, type) => {
   const input = path.join(dirname, filename);
-  // const targetType = await archiver.getTagetType(input);
 
   if (type !== 'unpack') {
-    await archiver.pack(input, output, password, type);
+    await archiver.pack(input, output, { password, type, level: 2 });
   } else {
-    await archiver.unpack(input, output, password, type);
+    await archiver.unpack(input, output, { password, type, level: 2 });
   }
 };
 
