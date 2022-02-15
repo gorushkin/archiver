@@ -10,7 +10,6 @@ const __dirname = dirname(__filename);
 const tempDirectoryName = 'temp';
 
 const getPathToFixtures = (...fileName) => path.join(__dirname, '..', '__fixtures__', ...fileName);
-// const getFileFromFixtures = (path) => fs.readFileSync(getPathToFixtures(path));
 
 const getPathToTempDir = (...fileNames) =>
   path.join(process.cwd(), tempDirectoryName, ...fileNames);

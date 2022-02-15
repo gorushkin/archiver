@@ -6,8 +6,8 @@ import archiverZipEncrypted from 'archiver-zip-encrypted';
 
 archiver.registerFormat('zip-encrypted', archiverZipEncrypted);
 
-export default async (inputpath, outputPath, password, name) => {
-  return new Promise((resolve, reject) => {
+export default async (inputPath, outputPath, password, name, targetType) => {
+  return new Promise(async (resolve, reject) => {
     const archive = password
       ? archiver('zip-encrypted', {
           zlib: { level: 8 },
@@ -20,33 +20,32 @@ export default async (inputpath, outputPath, password, name) => {
 
     const output = fs.createWriteStream(outputPath);
 
-    output.on('close', function () {
-      // console.log(archive.pointer() + ' total bytes');
-      // console.log('archiver has been finalized and the output file descriptor has closed.');
+    output.on('close', () => {
+      console.log(archive.pointer() + ' total bytes');
+      console.log('archiver has been finalized and the output file descriptor has closed.');
     });
 
-    output.on('end', function () {
-      console.log('Data has been drained');
-    });
+    output.on('end', () => console.log('Data has been drained'));
 
-    archive.on('warning', function (err) {
+    archive.on('warning', (err) => {
       if (err.code === 'ENOENT') {
-        // log warning
       } else {
-        // throw error
-        throw err;
+        reject(err);
       }
     });
 
-    archive.on('error', function (err) {
-      throw err;
-    });
+    archive.on('error', (err) => reject(err));
 
     archive.pipe(output);
 
-    const readable = createReadStream(inputpath);
+    const readable = createReadStream(inputPath);
 
-    archive.append(readable, { name });
+    if (targetType === 'file') archive.append(readable, { name });
+
+    if (targetType === 'directory') {
+      const dirName = inputPath.split('/').at(-1);
+      archive.directory(inputPath, dirName);
+    }
 
     archive.finalize();
 

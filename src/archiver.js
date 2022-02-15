@@ -51,6 +51,7 @@ class Archiver {
     try {
       await fs.promises.rename(input, output);
     } catch (error) {
+      console.log('error: ', error);
       throw new ToolError(`Path ${input} or  ${output} is invalid`);
     }
   }
@@ -61,21 +62,23 @@ class Archiver {
     // if (!password) throw new ToolError('Password is required');
     await this.checkFile(input);
 
+    const targetType = await this.getTagetType(input);
+
     const tempFolder = await this.createTempFolder(output);
     const tempArchName = path.join(tempFolder, archiveName);
     const tempFilename = path.basename(input);
-    const firstArchiveName = await archiveTool(input, tempArchName, password, tempFilename);
+    const firstArchiveName = await archiveTool(input, tempArchName, password, tempFilename, targetType);
 
-    if (level === 2) {
-      const finalArchName = path.join(output, archiveName);
-      const finalFilename = path.basename(finalArchName);
-      await archiveTool(firstArchiveName, finalArchName, password, finalFilename);
-    } else {
-      const finalFilename = path.join(output, archiveName);
-      await this.moveFile(firstArchiveName, finalFilename);
-    }
+      if (level === 2) {
+        const finalArchName = path.join(output, archiveName);
+        const finalFilename = path.basename(finalArchName);
+        await archiveTool(firstArchiveName, finalArchName, password, finalFilename);
+      } else {
+        const finalFilename = path.join(output, archiveName);
+        await this.moveFile(firstArchiveName, finalFilename);
+      }
 
-    await this.removeTempFolder(tempFolder);
+      await this.removeTempFolder(tempFolder);
   }
 }
 
