@@ -1,13 +1,14 @@
 import fs from 'fs';
 import { ToolError } from './error.js';
-import archiveTool from './utils/index.js';
+import packTool from './utils/packTool.js';
+import unpackTool from './utils/unpackTool.js';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 class Archiver {
   static async checkFile(input) {
     try {
-      const stat = await fs.promises.stat(input);
+      return await fs.promises.stat(input);
     } catch (error) {
       throw new ToolError('file is not exist');
     }
@@ -45,6 +46,17 @@ class Archiver {
     if (!password) throw new ToolError('Password is required');
 
     await this.checkFile(input);
+
+    const { name } = path.parse(input);
+
+    const outputPath = path.join(output, name);
+
+    try {
+      const result = await unpackTool(input, outputPath, name, password);
+    } catch (error) {
+      throw new ToolError(error);
+    }
+
   }
 
   static async moveFile(input, output) {
@@ -64,7 +76,7 @@ class Archiver {
     const tempFolder = await this.createTempFolder(output);
     const tempArchName = path.join(tempFolder, archiveName);
     const tempFilename = path.basename(input);
-    const firstArchiveName = await archiveTool(
+    const firstArchiveName = await packTool(
       input,
       tempArchName,
       password,
@@ -75,7 +87,7 @@ class Archiver {
     if (level === 2) {
       const finalArchName = path.join(output, archiveName);
       const finalFilename = path.basename(finalArchName);
-      await archiveTool(firstArchiveName, finalArchName, password, finalFilename, 'file');
+      await packTool(firstArchiveName, finalArchName, password, finalFilename, 'file');
     } else {
       const finalFilename = path.join(output, archiveName);
       await this.moveFile(firstArchiveName, finalFilename);
