@@ -6,11 +6,11 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 class Archiver {
-  static async checkFile(input) {
+  static async validateInputPath(input) {
     try {
-      return await fs.promises.stat(input);
+      await fs.promises.stat(input);
     } catch (error) {
-      throw new ToolError('file is not exist');
+      throw new ToolError(error, `no such file or directory ${input}`);
     }
   }
 
@@ -45,7 +45,7 @@ class Archiver {
   static async unpack(input, output, password) {
     if (!password) throw new ToolError('Password is required');
 
-    await this.checkFile(input);
+    await this.validateInputPath(input);
 
     const { name } = path.parse(input);
 
@@ -56,20 +56,18 @@ class Archiver {
     } catch (error) {
       throw new ToolError(error);
     }
-
   }
 
   static async moveFile(input, output) {
     try {
       await fs.promises.rename(input, output);
     } catch (error) {
-      console.log('error: ', error);
       throw new ToolError(`Path ${input} or  ${output} is invalid`);
     }
   }
 
   static async pack(input, output, { archiveName = 'archive.zip', password, level = 2 }) {
-    await this.checkFile(input);
+    await this.validateInputPath(input);
 
     const targetType = await this.getTagetType(input);
 

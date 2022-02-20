@@ -29,6 +29,31 @@ const testData = [
   },
 ];
 
+const errorTestData = [
+  {
+    name: 'invalid input path',
+    input: 'qwe',
+    output: 'sdfsadf',
+    config: {
+      archiveName: 'asdfsad',
+      password: '123',
+      level: 1,
+    },
+    expectedError: (input) => `no such file or directory ${input}`
+  },
+  // {
+  //   name: 'invalid output path',
+  //   input: '__fixtures__/test1/text.txt',
+  //   output: 'sdfsadf',
+  //   config: {
+  //     archiveName: 'asdfsad',
+  //     password: '123',
+  //     level: 1,
+  //   },
+  //   expectedError: (input) => `no such file or directory ${input}`
+  // },
+];
+
 describe('Packing tests', () => {
   beforeAll(async () => {
     await resetDir(getPathToTempDir());
@@ -65,6 +90,17 @@ describe('Packing tests', () => {
         const resultDirStucture = await scanDir(tempExtractDir);
         expect(expextedDirStucture).toEqual(resultDirStucture);
       });
+    }
+  );
+});
+
+describe('error tests', () => {
+  test.each(errorTestData.map((item) => item))(
+    '$name',
+    async ({ name, input, output, config: { archiveName, password, level }, expectedError }) => {
+      console.log('expectedError: ', expectedError);
+      const res = Archiver.pack(input, output, { archiveName, password, level });
+      await expect(res).rejects.toThrow(expectedError(input));
     }
   );
 });

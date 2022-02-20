@@ -1,6 +1,7 @@
 export class ToolError extends Error {
-  constructor(error) {
+  constructor(error, message) {
     super(error);
+    this.message = message;
     this.mine = true;
   }
 }
