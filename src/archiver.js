@@ -30,16 +30,12 @@ class Archiver {
       const stat = await fs.promises.stat(input);
       return stat.isFile() ? 'file' : 'directory';
     } catch (error) {
-      throw new ToolError(`Path ${input} is invalid`);
+      throw new ToolError(error, `no such file or directory ${input}`);
     }
   }
 
   static async removeTempFolder(folder) {
-    try {
-      await fs.promises.rm(folder, { recursive: true });
-    } catch (error) {
-      throw new ToolError(`Path ${folder} is invalid`);
-    }
+    await fs.promises.rm(folder, { recursive: true });
   }
 
   static async unpack(input, output, password) {
@@ -52,18 +48,14 @@ class Archiver {
     const outputPath = path.join(output, name);
 
     try {
-      const result = await unpackTool(input, outputPath, name, password);
+      await unpackTool(input, outputPath, name, password);
     } catch (error) {
       throw new ToolError(error);
     }
   }
 
   static async moveFile(input, output) {
-    try {
-      await fs.promises.rename(input, output);
-    } catch (error) {
-      throw new ToolError(`Path ${input} or  ${output} is invalid`);
-    }
+    await fs.promises.rename(input, output);
   }
 
   static async pack(input, output, { archiveName = 'archive.zip', password, level = 2 }) {
