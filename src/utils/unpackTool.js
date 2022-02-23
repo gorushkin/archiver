@@ -2,25 +2,32 @@ import fs from 'fs';
 import unzipper from 'unzipper';
 
 export default async (inputPath, outputPath, password) => {
-  return new Promise(async (resolve, reject) => {
-    const input = fs.createReadStream(inputPath);
+  console.log('password: ', password);
+  console.log('outputPath: ', outputPath);
+  console.log('inputPath: ', inputPath);
+  const directory = await unzipper.Open.file(inputPath);
+  console.log('directory: ', directory);
 
-    const output = unzipper.Extract({ path: outputPath });
+  await directory.extract({ path: outputPath, password });
 
-    output.on('close', () => {
-      console.log('unzipper has been finalized and the output file descriptor has closed.');
-    });
+  // return new Promise(async (resolve, reject) => {
+  //   const input = fs.createReadStream(inputPath);
 
-    output.on('end', () => console.log('Data has been drained'));
+  //   const output = unzipper.Extract({ path: outputPath });
 
-    input.on('error', (err) => reject(err));
+  //   output.on('close', () => {
+  //     console.log('unzipper has been finalized and the output file descriptor has closed.');
+  //   });
 
-    input.pipe(output);
+  //   output.on('end', () => console.log('Data has been drained'));
 
-    reject('asdfsadfdf')
+  //   input.on('error', (err) => console.log(';err'));
+  //   // input.on('error', (err) => reject(err));
 
-    input.on('finish', () => {
-      resolve(outputPath);
-    });
-  });
+  //   input.pipe(output);
+
+  //   input.on('finish', () => {
+  //     resolve(outputPath);
+  //   });
+  // });
 };

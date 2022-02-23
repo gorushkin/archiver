@@ -38,19 +38,21 @@ class Archiver {
     await fs.promises.rm(folder, { recursive: true });
   }
 
-  static async unpack(input, output, password) {
-    if (!password) throw new ToolError('Password is required');
+  static async unpack(input, output, { archiveName = 'archive.zip', password, level = 2 }) {
+    console.log('input: ', input);
 
     await this.validateInputPath(input);
 
     const { name } = path.parse(input);
 
     const outputPath = path.join(output, name);
+    console.log('outputPath: ', outputPath);
 
     try {
-      await unpackTool(input, outputPath, name, password);
+      await unpackTool(input, outputPath, password);
     } catch (error) {
-      throw new ToolError(error);
+      console.log('error: ', error.message);
+      // throw new ToolError(error);
     }
   }
 
