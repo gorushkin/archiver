@@ -88,7 +88,7 @@ describe('Packing tests', () => {
         await directory.extract({ path: tempExtractDir, concurrency: 5 });
         const expextedDirStucture = await scanDir(getPathToFixtures(folderName));
         const resultDirStucture = await scanDir(tempExtractDir);
-        expect(expextedDirStucture).toEqual(resultDirStucture);
+        expect(JSON.stringify(resultDirStucture)).toEqual(JSON.stringify(expextedDirStucture));
       });
     }
   );
@@ -98,7 +98,6 @@ describe('error tests', () => {
   test.each(errorTestData.map((item) => item))(
     '$name',
     async ({ name, input, output, config: { archiveName, password, level }, expectedError }) => {
-      console.log('expectedError: ', expectedError);
       const res = Archiver.pack(input, output, { archiveName, password, level });
       await expect(res).rejects.toThrow(expectedError(input));
     }
