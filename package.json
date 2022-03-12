@@ -10,12 +10,15 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev": "node bin/archiver.js asdfsadf.avi",
-    "p": "node bin/archiver.js unpack __fixtures__/test3/archive.zip -o /home/gorushkin/Webdev/archiver/temp/test3 ",
+    "p": "node bin/archiver.js unpack __fixtures__/test3/archive.zip -o /home/gorushkin/Webdev/archiver/temp/test3 -p 1235",
     "p2": "node bin/archiver.js unpack temp/test3/test.zip -o /home/gorushkin/Webdev/archiver/temp -p 123",
     "u": "node bin/archiver.js unpack test.zip -o /home/gorushkin/Webdev/archiver/temp/test3",
     "e": "node bin/archiver.js",
     "start": "node build/archiver.js",
-    "build": "tsc"
+    "build": "tsc",
+    "instal": "npm link",
+    "uninstal": "npm unlink",
+    "reinstal": "npm unlink && npm link"
   },
   "jest": {
     "testEnvironment": "node",

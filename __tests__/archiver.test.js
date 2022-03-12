@@ -32,26 +32,30 @@ const testData = [
 const errorTestData = [
   {
     name: 'invalid input path',
-    input: 'qwe',
+    input: 'asdfsadf/asdfasdf/qwe',
+    folderName: '',
     output: 'sdfsadf',
     config: {
       archiveName: 'asdfsad',
       password: '123',
       level: 1,
     },
-    expectedError: (input) => `no such file or directory ${input}`
+    errorContext: 'asdfsadf/asdfasdf/qwe',
+    expectedError: (name) => `no such file or directory ${name}`
   },
-  // {
-  //   name: 'invalid output path',
-  //   input: '__fixtures__/test1/text.txt',
-  //   output: 'sdfsadf',
-  //   config: {
-  //     archiveName: 'asdfsad',
-  //     password: '123',
-  //     level: 1,
-  //   },
-  //   expectedError: (input) => `no such file or directory ${input}`
-  // },
+  {
+    name: 'file exists',
+    folderName: 'test3',
+    input: 'text.txt',
+    output: '',
+    config: {
+      archiveName: 'archive.zip',
+      password: '123',
+      level: 1,
+    },
+    errorContext: 'archive.zip',
+    expectedError: (name) => `there is file with ${name} name`,
+  },
 ];
 
 describe('Packing tests', () => {
@@ -59,7 +63,7 @@ describe('Packing tests', () => {
     await resetDir(getPathToTempDir());
   });
 
-  describe.each(testData.map((item) => item))(
+  describe.skip.each(testData.map((item) => item))(
     '$testGroupName',
     ({ folderName, expectedArchiveName, target }) => {
       let dirContent;
@@ -97,9 +101,20 @@ describe('Packing tests', () => {
 describe('error tests', () => {
   test.each(errorTestData.map((item) => item))(
     '$name',
-    async ({ name, input, output, config: { archiveName, password, level }, expectedError }) => {
-      const res = Archiver.pack(input, output, { archiveName, password, level });
-      await expect(res).rejects.toThrow(expectedError(input));
+    async ({
+      name,
+      folderName,
+      input,
+      output,
+      config: { archiveName, password, level },
+      expectedError,
+      errorContext
+    }) => {
+      const inputPath = getPathToFixtures(folderName, input);
+      const outputPath = getPathToFixtures(folderName, output);
+      const contextPath = getPathToFixtures(folderName, errorContext);
+      const res = Archiver.pack(inputPath, outputPath, { archiveName, password, level });
+      await expect(res).rejects.toThrow(expectedError(contextPath));
     }
   );
 });
