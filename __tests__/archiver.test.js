@@ -63,7 +63,7 @@ describe('Packing tests', () => {
     await resetDir(getPathToTempDir());
   });
 
-  describe.skip.each(testData.map((item) => item))(
+  describe.each(testData.map((item) => item))(
     '$testGroupName',
     ({ folderName, expectedArchiveName, target }) => {
       let dirContent;

@@ -9,9 +9,11 @@ program
   .argument('<filename>')
   .option('-o, --output [path]', 'output dir', process.cwd())
   .option('-p, --password [password]', 'password')
+  .option('-n, --name [name]', 'archive name', 'archive')
+  .option('-d, --name [directory]', 'directory name')
   .action((filename) => {
-    const { output, password } = program.opts();
-    app(output, password, filename);
+    const { output, password, name } = program.opts();
+    app(output, password, filename, name);
   });
 
 program
@@ -19,9 +21,8 @@ program
   .description('pack file')
   .alias('p')
   .action((filename) => {
-    const { output, password } = program.opts();
-    app(output, password, filename, 'pack');
-
+    const { output, password, name } = program.opts();
+    app(output, password, filename, name, 'pack');
   });
 
 program
@@ -29,8 +30,8 @@ program
   .description('unpack file')
   .alias('u')
   .action((filename) => {
-    const { output, password } = program.opts();
-    app(output, password, filename, 'unpack');
+    const { output, password, name } = program.opts();
+    app(output, password, filename, name, 'unpack');
   });
 
 program.parse(process.argv);

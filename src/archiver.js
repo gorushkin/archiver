@@ -19,6 +19,7 @@ class Archiver {
       await fs.promises.stat(output);
       throw new Error();
     } catch (error) {
+      if (error.code === 'ENOENT') return;
       throw new ToolError(error, `there is file with ${output} name`);
     }
   }
@@ -66,7 +67,7 @@ class Archiver {
     await fs.promises.rename(input, output);
   }
 
-  static async pack(input, output, { archiveName = 'archive.zip', password, level = 2 }) {
+  static async pack(input, output, { archiveName, password, level = 2 }) {
     await this.validateInputPath(input);
     await this.validateOutputPath(path.join(output, archiveName));
 
