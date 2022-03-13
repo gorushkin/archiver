@@ -48,12 +48,12 @@ class Archiver {
     await fs.promises.rm(folder, { recursive: true });
   }
 
-  static async unpack(input, output, { password }) {
+  static async unpack(input, output, { password, directory }) {
     await this.validateInputPath(input);
 
     const { name } = path.parse(input);
 
-    const outputPath = path.join(output, name);
+    const outputPath = path.join(output, directory, name);
 
     try {
       await unpackTool(input, outputPath, password);

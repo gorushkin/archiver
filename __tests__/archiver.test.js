@@ -14,7 +14,7 @@ const getPathToFixtures = (...fileName) => path.join(__dirname, '..', '__fixture
 const getPathToTempDir = (...fileNames) =>
   path.join(process.cwd(), tempDirectoryName, ...fileNames);
 
-const testData = [
+const packTestData = [
   {
     testGroupName: 'Pack single file',
     folderName: 'test1',
@@ -29,7 +29,7 @@ const testData = [
   },
 ];
 
-const errorTestData = [
+const errorPackTestData = [
   {
     name: 'invalid input path',
     input: 'asdfsadf/asdfasdf/qwe',
@@ -41,7 +41,7 @@ const errorTestData = [
       level: 1,
     },
     errorContext: 'asdfsadf/asdfasdf/qwe',
-    expectedError: (name) => `no such file or directory ${name}`
+    expectedError: (name) => `no such file or directory ${name}`,
   },
   {
     name: 'file exists',
@@ -63,7 +63,7 @@ describe('Packing tests', () => {
     await resetDir(getPathToTempDir());
   });
 
-  describe.each(testData.map((item) => item))(
+  describe.each(packTestData.map((item) => item))(
     '$testGroupName',
     ({ folderName, expectedArchiveName, target }) => {
       let dirContent;
@@ -99,7 +99,7 @@ describe('Packing tests', () => {
 });
 
 describe('error tests', () => {
-  test.each(errorTestData.map((item) => item))(
+  test.each(errorPackTestData.map((item) => item))(
     '$name',
     async ({
       name,
@@ -108,13 +108,63 @@ describe('error tests', () => {
       output,
       config: { archiveName, password, level },
       expectedError,
-      errorContext
+      errorContext,
     }) => {
       const inputPath = getPathToFixtures(folderName, input);
       const outputPath = getPathToFixtures(folderName, output);
       const contextPath = getPathToFixtures(folderName, errorContext);
       const res = Archiver.pack(inputPath, outputPath, { archiveName, password, level });
       await expect(res).rejects.toThrow(expectedError(contextPath));
+    }
+  );
+});
+
+const unpackTestData = [
+  {
+    testGroupName: 'Unpack single file',
+    folderName: 'test4',
+    target: 'text.zip',
+    expectedResult: 'expectedResult',
+    directory: '',
+  },
+];
+
+describe('Unpacking tests', () => {
+  beforeAll(async () => {
+    await resetDir(getPathToTempDir());
+  });
+
+  describe.each(unpackTestData.map((item) => item))(
+    '$testGroupName',
+    ({ folderName, expectedResult, target, directory }) => {
+      let dirContent;
+      let resultFolder;
+      let expectedFolder;
+      let expectedDirContent;
+
+      beforeAll(async () => {
+        const targetPath = getPathToFixtures(folderName, target);
+        resultFolder = getPathToTempDir(folderName);
+        expectedFolder = getPathToFixtures(folderName, expectedResult);
+        await fs.promises.mkdir(resultFolder);
+        await Archiver.unpack(targetPath, resultFolder, {
+          directory,
+          level: 1,
+        });
+
+        [dirContent] = await getDirContent(resultFolder);
+        [expectedDirContent] = await getDirContent(expectedFolder);
+      });
+
+      test('file was unpacked successfuly', async () => {
+        expect(dirContent).toEqual(expectedDirContent);
+      });
+
+      test('archive structure and content are correct', async () => {
+        const expextedDirStucture = await scanDir(path.join(expectedFolder, expectedDirContent));
+        const resultDirStucture = await scanDir(path.join(resultFolder, dirContent));
+        expect(JSON.stringify(resultDirStucture)).toEqual(JSON.stringify(expextedDirStucture));
+      });
     }
   );
 });
